@@ -1,4 +1,4 @@
-# A Genetic Algorithm for Prize Collecting Steiner Tree (C++)
+# A Genetic Algorithm for the Steiner Tree Problem (C++)
 
 
 ## License

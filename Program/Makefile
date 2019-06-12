@@ -1,4 +1,4 @@
-all : pc-steiner clean
+all : steiner clean
 
 CCC = g++-8
 CCFLAGS = -O3 
@@ -13,8 +13,8 @@ OBJS2 = \
 		$(TARGETDIR)/main.o \
 		$(TARGETDIR)/Params.o \
 
-$(TARGETDIR)/pc-steiner: $(OBJS2)
-	$(CCC)  $(CCFLAGS) -o $(TARGETDIR)/pc-steiner $(OBJS2)
+$(TARGETDIR)/steiner: $(OBJS2)
+	$(CCC)  $(CCFLAGS) -o $(TARGETDIR)/steiner $(OBJS2)
 	
 $(TARGETDIR)/Params.o: Params.h Params.cpp
 	$(CCC) $(CCFLAGS) $(CPPFLAGS) -c Params.cpp -o $(TARGETDIR)/Params.o

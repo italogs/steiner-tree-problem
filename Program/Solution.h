@@ -4,19 +4,6 @@
 #include <vector>
 #include "Params.h"
 
-// Structure representing one node of the (orthogonal) decision tree or a leaf
-class Node
-{
-
-public:
-	Params * params;										// Access to the problem and dataset parameters
-
-	Node(Params * params):params(params)
-	{
-		
-	}
-};
-
 class Solution
 {
 

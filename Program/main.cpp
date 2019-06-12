@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 		Params params(c.get_path_to_instance(), c.get_path_to_solution(), c.get_seed());
 
 		// Initialization of a solution structure
-		Solution solution(&params);
+		// Solution solution(&params);
 
 		// Run the greedy algorithm 
 		std::cout << "----- STARTING ALGORITHM" << std::endl;
