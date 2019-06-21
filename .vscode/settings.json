@@ -56,6 +56,11 @@
         "type_traits": "cpp",
         "typeinfo": "cpp",
         "utility": "cpp",
-        "iomanip": "cpp"
+        "iomanip": "cpp",
+        "deque": "cpp",
+        "queue": "cpp",
+        "unordered_set": "cpp",
+        "list": "cpp",
+        "__hash_table": "cpp"
     }
 }

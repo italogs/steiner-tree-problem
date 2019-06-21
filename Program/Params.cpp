@@ -1,9 +1,30 @@
 #include "Params.h"
 
+void Params::PrintGraph()
+{
+	printf("Graph:\n");
+	for (int i = 0 ; i < adjList.size(); i++)
+	{
+		printf("%d: ", i);
+		for(int j = 0 ; j < adjList[i].size() ; j++)
+			printf("%d (w: %d), ", adjList[i][j].first, adjList[i][j].second);
+		printf("\n");
+	}
+	printf("Terminal nodes (%d): ",terminalNodes.size());
+	for(int i = 0; i < terminalNodes.size() ; i++)
+	{
+		if(terminalNodes[i])
+			printf("%d, ",i);
+	}
+	printf("\n");
+}
+
 Params::Params(std::string pathToInstance, std::string pathToSolution, int seed) : seed(seed), pathToInstance(pathToInstance), pathToSolution(pathToSolution)
 {
 	// Initializing random number generator here (if you have nondeterministic components)
 	std::srand(seed);
+	this->maxPopSize = 20;
+	
 	std::cout << "----- INITIALIZING ALGORITHM WITH SEED: " << seed << std::endl;
 	std::ifstream inputFile(pathToInstance.c_str());
 	std::cout << "Instance: " << pathToInstance.c_str() << std::endl;
@@ -28,29 +49,40 @@ Params::Params(std::string pathToInstance, std::string pathToSolution, int seed)
 				}
 			}
 
-			 else if(s1 == "SECTION" && s2 == "Graph")
+			else if(s1 == "SECTION" && s2 == "Graph")
 			{
 				// Collecting nb of nodes
 				inputFile >> s1 >> s2;
 				int nbNodes = std::stoi(s2,&sz);
 				// Collecting nb of edges
 				inputFile >> s1 >> s2;
-				// int nbEdges = std::stoi(s2,&sz);
-				// printf("NbNodes %d nbEdges %d\n", nbNodes , nbEdges);
-				graph.allocateNodes(nbNodes);
+				for(int i = 0; i < nbNodes; i++)
+				{
+					// Create a vector to represent a row, and add it to the adjList.
+					std::vector<std::pair<int, int> > row;
+					adjList.push_back(row);
+					terminalNodes.push_back(0);
+				}
+				
 				inputFile >> s1 >> s2 >> s3 >> s4;
 				while(s1 != "END")
 				{
 					//Format: E node1 node2 weight
-					// int int_s1 = std::stoi(s1);
-					int int_s2 = std::stoi(s2,&sz);
-					int int_s3 = std::stoi(s3,&sz);
-					int int_s4 = std::stoi(s4,&sz);
-					graph.insertEdge(int_s2,int_s3,int_s4);
+					int source = std::stoi(s2,&sz);
+					
+					int destination = std::stoi(s3,&sz);
+					
+					int weight = std::stoi(s4,&sz);
+
+					source--;
+					destination--;
+					adjList[source].push_back(std::make_pair(destination,weight));
+					adjList[destination].push_back(std::make_pair(source,weight));
+
 					inputFile >> s1;
 					if(s1 == "END")
 						break;
-					inputFile >>  s2 >> s3 >> s4;
+					inputFile >> s2 >> s3 >> s4;
 				}
 			}
 
@@ -63,8 +95,8 @@ Params::Params(std::string pathToInstance, std::string pathToSolution, int seed)
 				while(s1 != "END")
 				{
 					int terminal_id = std::stoi(s2);
-					//Format T *
-					graph.setNodeAsTerminal(terminal_id);
+					terminal_id--;
+					terminalNodes[terminal_id] = 1;
 					inputFile >> s1 >> s2;
 				}
 			}
