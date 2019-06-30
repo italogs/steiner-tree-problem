@@ -1,4 +1,6 @@
 #include "Params.h"
+#include <queue>
+#include <list>
 
 void Params::PrintGraph()
 {
@@ -17,6 +19,20 @@ void Params::PrintGraph()
 			printf("%d, ",i);
 	}
 	printf("\n");
+}
+
+int Params::getEdgeWeight(int node1, int node2)
+{
+	for(int i = 0 ; i < adjList[node1].size(); i++)
+		if(adjList[node1][i].first == node2)
+			return adjList[node1][i].second;
+	throw std::string("Edge not found.\n");
+}
+
+
+int Params::getNbEdges()
+{	
+	return this->edgeMap.size();
 }
 
 Params::Params(std::string pathToInstance, std::string pathToSolution, int seed) : seed(seed), pathToInstance(pathToInstance), pathToSolution(pathToSolution)
@@ -65,6 +81,7 @@ Params::Params(std::string pathToInstance, std::string pathToSolution, int seed)
 				}
 				
 				inputFile >> s1 >> s2 >> s3 >> s4;
+				int id_edge = 0;
 				while(s1 != "END")
 				{
 					//Format: E node1 node2 weight
@@ -78,6 +95,13 @@ Params::Params(std::string pathToInstance, std::string pathToSolution, int seed)
 					destination--;
 					adjList[source].push_back(std::make_pair(destination,weight));
 					adjList[destination].push_back(std::make_pair(source,weight));
+					if(source > destination)
+						std::swap(source,destination);
+					auto result = edgeMap.insert( std::make_pair(std::make_pair(source,destination), std::make_pair(id_edge, weight)));
+					bool insertionPerformed = result.second;
+					if(insertionPerformed)
+						id_edge++;
+
 
 					inputFile >> s1;
 					if(s1 == "END")
@@ -102,9 +126,209 @@ Params::Params(std::string pathToInstance, std::string pathToSolution, int seed)
 			}
 		}
 		std::cout << "----- INSTANCE WAS READ" << std::endl;
+		// reduceGraph();
 	}
 	else
 	{
 		std::cout << "----- IMPOSSIBLE TO OPEN DATASET: " << pathToInstance << std::endl;
 	}
+}
+
+
+//not working. Need full revision
+void Params::reduceGraph()
+{
+	// printf("adjList.size():1 %d\n",adjList.size());
+	// bool need_another_iteration = true;
+	// int nbRemovedArcs = 0;
+	// std::vector<int> deleted_nodes;
+    // while(need_another_iteration)
+    // {
+    //     need_another_iteration = false;
+    //     for (int i = 0 ; i < adjList.size(); i++)
+    //     {
+    //         //Its a leaf and non-terminal
+    //         if(adjList[i].size() == 1 && !terminalNodes[i])
+    //         {
+	// 			deleted_nodes.push_back(i);
+    //             need_another_iteration = true;
+    //             int source = i;
+	// 			int destination = adjList[source][0].first;
+    //             nbRemovedArcs++;
+	// 			printf("(%d,%d);",source,destination);
+    //             //Doing a symetric deletion (destination - source)
+    //             for(int j = 0 ; j < adjList[destination].size(); j++)
+    //             {
+    //                 if(adjList[destination][j].first == source)
+	// 				{
+	// 					printf("(%d,%d);",destination,source);
+	// 					adjList[destination].erase(adjList[destination].begin()+j);
+	// 					break;
+	// 				}
+    //             }
+	// 			//Removing edge of (source - destination)
+	// 			adjList[source].clear();
+
+	// 			// adjList.erase(adjList.begin() + source);
+	// 			// terminalNodes.erase(terminalNodes.begin() + source);
+	// 			break;
+    //         }
+    //     }
+    // }
+
+
+	// std::vector< std::vector< std::pair<int, int> > > adjListModified;
+	// std::vector< int > terminalNodesModified;
+	// for(int i = 0; i < adjList.size(); i++)
+	// {
+	// 	if(adjList[i].size() > 0)
+	// 	{
+	// 		adjListModified.push_back(adjList[i]);
+	// 		terminalNodesModified.push_back(terminalNodes[i]);
+	// 	}
+	// 	adjList[i].clear();
+	// }
+	// adjList.clear();
+	// terminalNodes.clear();
+	// std::copy(adjList, adjListModified);
+	// std::copy(terminalNodes, terminalNodesModified);
+	// // adjList = adjListModified;
+	// // terminalNodes = terminalNodesModified;
+	// int id_edge = 0;
+	// for(int i = 0; i < adjList.size(); i++)
+	// {
+	// 	printf("Degree %d: %d\n", i, adjList[i].size());
+		
+	// 	for(int j = 0 ; j < adjList[i].size() ; j++)
+	// 	{
+	// 		int source = i;
+	// 		int destination = adjList[i][j].first;
+	// 		int weight = adjList[i][j].second;
+	// 		if(source > destination)
+	// 			std::swap(source,destination);
+	// 		auto result = edgeMap.insert( std::make_pair(std::make_pair(source,destination), std::make_pair(id_edge, weight)));
+	// 		bool insertionPerformed = result.second;
+	// 		if(insertionPerformed)
+	// 			id_edge++;
+	// 	}
+		
+		
+	// }
+	// printf("\n");
+	// printf("NbNodes %d",adjList.size());
+
+	// printf("nbEdges %d",adjList.size());
+	
+	
+
+	
+
+
+	// printf("\n");
+
+
+	// printf("removedArcs %d",nbRemovedArcs);
+	// printf("adjList.size():2 %d\n",adjList.size());
+	// need_another_iteration = true;
+	// printf("Deletando nós: ");
+    // while(need_another_iteration)
+    // {
+    //     need_another_iteration = false;
+	// 	for (int i = 0 ; i < adjList.size() ; i++)
+	// 	{
+	// 		//Its a leaf and non-terminal
+	// 		if(adjList[i].size() == 0)
+	// 		{
+	// 			need_another_iteration = true;
+	// 			if(terminalNodes[i])
+	// 			{
+	// 				printf("Opa.. isso nao pode acontecer\n");
+	// 				exit(0);
+	// 			}
+	// 			printf("%d(%d),",i,adjList.size());
+	// 			adjList.erase(adjList.begin()+i);
+	// 			terminalNodes.erase(terminalNodes.begin()+i);
+	// 			break;	
+	// 		}
+	// 	}
+	// }
+
+	// printf("\nadjList.size():3 %d\n",adjList.size());
+	// need_another_iteration = true;
+    // while(need_another_iteration)
+    // {
+    //     need_another_iteration = false;
+	// 	for (int i = 0 ; i < adjList[i].size() ; i++)
+	// 	{
+	// 		//Its a leaf and non-terminal
+	// 		if(adjList[i].size() == 0)
+	// 		{
+				
+	// 				printf("Opa.. isso nao pode acontecer 2\n");
+	// 				exit(0);
+				
+	// 		}
+
+	// 		if(adjList[i].size() == 1 && !terminalNodes[i])
+	// 		{
+	// 			printf("Opa.. isso nao pode acontecer 3\n");
+	// 				exit(0);
+	// 		}
+	// 	}
+	// }
+
+
+	
+
+	// printf("adjList.size():4 %d\n",adjList.size());
+
+	// int source = -1;
+	// printf("BFS\n");
+    // // If source is not provided, we take the first one that is part of the solution
+    // if(source < 0)
+    // {
+    //     for(int i = 0; i < adjList.size(); i++)
+    //     {
+    //         if(adjList[i].size() > 0)
+	// 		{
+
+			
+    //             source = i;
+	// 			break;
+	// 		}
+    //     }
+    // }
+	// printf("root: %d,",source);
+    // bool *visited = new bool[adjList.size()];
+    // for(int i = 0; i < adjList.size(); i++) 
+    //     visited[i] = false; 
+    // // Create a queue for BFS 
+    // std::list<int> queue; 
+    // int current_node = source;
+    // // Mark the current node as visited and enqueue it 
+    // visited[current_node] = true; 
+    // queue.push_back(current_node); 
+    // int level = 0;
+    // printf("%d\n",source);
+    
+    // while(!queue.empty()) 
+    // { 
+    //     // Dequeue a vertex from queue and print it 
+    //     current_node = queue.front(); 
+    //     queue.pop_front(); 
+    //     printf("%d: ",current_node);
+    //     for (auto it = adjList[current_node].begin(); it != adjList[current_node].end(); ++it) 
+    //     {
+    //         if (!visited[it->first]) 
+    //         { 
+    //             printf("%d,",it->first);
+    //             visited[it->first] = true; 
+    //             queue.push_back(it->first); 
+    //         }
+    //     }
+    //     printf("\n",level);
+    //     level++;
+    // }
+
+	// exit(0);
 }

@@ -10,15 +10,14 @@ class Population
     Params *params;
 public:
     int maxPopSize;
-    SubPopulation population;
+    SubPopulation subpopulation;
     Population(Params *params);
     void generateInitialPopulation();
-
-    void addIndividual(Individual *newIndividual)
-    {
-        population.push_back(newIndividual);
-        // population.push_back(newIndividual);
-    }
-
+    Individual *binaryTournament();
+    Individual *getBestIndividual();
+    void placeIndividual(Individual *individual);
+    void addIndividual(Individual *newIndividual);
+    void crossover(Individual *offspring);
+    
 };
 #endif

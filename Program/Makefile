@@ -14,6 +14,7 @@ OBJS2 = \
 		$(TARGETDIR)/Params.o \
 		$(TARGETDIR)/Population.o \
 		$(TARGETDIR)/Individual.o \
+		$(TARGETDIR)/LocalSearch.o \
 
 
 $(TARGETDIR)/steiner: $(OBJS2)
@@ -27,6 +28,9 @@ $(TARGETDIR)/Population.o: Population.h Population.cpp
 
 $(TARGETDIR)/Individual.o: Individual.h Individual.cpp
 	$(CCC) $(CCFLAGS) $(CPPFLAGS) -c Individual.cpp -o $(TARGETDIR)/Individual.o
+
+$(TARGETDIR)/LocalSearch.o: LocalSearch.h LocalSearch.cpp
+	$(CCC) $(CCFLAGS) $(CPPFLAGS) -c LocalSearch.cpp -o $(TARGETDIR)/LocalSearch.o
 	
 $(TARGETDIR)/main.o: main.cpp
 	$(CCC) $(CCFLAGS) $(CPPFLAGS) -c main.cpp -o $(TARGETDIR)/main.o

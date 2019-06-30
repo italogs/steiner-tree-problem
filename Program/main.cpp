@@ -2,6 +2,8 @@
 #include "Params.h"
 #include "Individual.h"
 #include "Population.h"
+#include "LocalSearch.h"
+
 
 void PrintShortestPath(Params &params, std::vector<int> &dist, int &start, std::vector<int> &prev);
 std::vector<int> DijkstraSP(std::vector< std::vector<std::pair<int, int> > > &adjList, int &start, std::vector<int> &prev);
@@ -16,13 +18,33 @@ int main(int argc, char *argv[])
 		Params params(c.get_path_to_instance(), c.get_path_to_solution(), c.get_seed());
 		std::cout << "----- STARTING ALGORITHM" << std::endl;
 		params.startTime = clock();
-		
-		
-
 		Population pop(&params);
+		LocalSearch localSearch(&params);
 		pop.generateInitialPopulation();
-
-
+		int maxFailedAttempts = 10000, nbFailedAttempts = 0;
+		
+		Individual offspring(&params);
+		Individual bestSolution(&params);
+		Individual::copy(&bestSolution,pop.getBestIndividual());
+		printf("initial bestSolutionCost %d\n", bestSolution.getCost());
+		while(nbFailedAttempts < maxFailedAttempts)
+		{
+			pop.crossover(&offspring);
+			// localSearch.run(&offspring);
+			//local search(offspring)
+			pop.placeIndividual(&offspring);
+			if(offspring.getCost() < bestSolution.getCost())
+			{
+				Individual::copy(&bestSolution,&offspring);
+				printf("new bestSolutionCost %d\n", bestSolution.getCost());
+				nbFailedAttempts = 0;
+			}
+			else 
+			{
+				nbFailedAttempts++;
+			}
+		}
+		printf("final bestSolutionCost %d\n", bestSolution.getCost());
 		// int node = 0;
 		// std::vector<int> prev;
 		// std::vector<int> dist = DijkstraSP(params.adjList, node, prev);

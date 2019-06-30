@@ -61,6 +61,8 @@
         "queue": "cpp",
         "unordered_set": "cpp",
         "list": "cpp",
-        "__hash_table": "cpp"
+        "__hash_table": "cpp",
+        "map": "cpp",
+        "stack": "cpp"
     }
 }

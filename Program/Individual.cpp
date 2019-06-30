@@ -1,15 +1,67 @@
 #include "Individual.h"
 #include <list>
 #include <queue>
+#include <set>
+#include <climits>
+#include <cstdlib>
 
 void Individual::copy(Individual * destination, Individual * source)
 {
-
+    destination->adjList = source->adjList;
+    destination->costSol = source->costSol;
 }
 
+void Individual::setEdgesSet()
+{
+    edgesSet.clear();
+    int source, destination;
+    for(int i = 0 ; i < adjList.size(); i++ ) 
+    {
+        for(int j = 0 ; j < adjList[i].size(); j++)
+        {
+            source = i;
+            destination = adjList[i][j].first;
+            std::pair<int,int> edge;
+            if(source > destination)
+                std::swap(source,destination);
+            edge = std::make_pair(source, destination);
+            edgesSet.insert(edge);
+        }
+    }
+}
+
+//O(m log m)
+//Distance == 0 means that both solutions are the same
+int Individual::calculateDistance(Individual *individual)
+{
+    int distance = 0;
+    for(auto &edge : this->edgesSet)
+        if(individual->edgesSet.find(edge) == individual->edgesSet.end())
+            distance++;
+    distance += std::abs( (int)(individual->edgesSet.size() -  this->edgesSet.size()));
+    return distance;
+}
+
+int Individual::getNbEdges()
+{
+    return (int)edgesSet.size();
+}
+
+void Individual::eraseEdges()
+{
+    for(int i = 0; i < adjList.size(); i++) 
+        adjList[i].clear();
+    edgesSet.clear();
+}
+
+int Individual::getCost()
+{
+    return this->costSol;
+}
 
 void Individual::insertEdgeIfFeasible(int source, int target, int weight)
 {
+    //It creates cycle? If so, don't insert
     if(!this->BFS(source,target))
     {
         adjList[source].push_back(std::make_pair(target,weight));
@@ -44,10 +96,49 @@ bool Individual::BFS(int source, int target)
                     return true;
                 visited[it->first] = true; 
                 queue.push_back(it->first); 
-            } 
+            }
         }
     }
     return false;
+}
+
+bool Individual::DFS(int source)
+{
+    if(source < 0)
+    {
+        for(int i = 0; adjList.size();i++)
+        {
+            if(adjList[i].size() > 0)
+            {
+                source = i;
+                break;
+            }
+        }
+    }
+    visited = std::vector<int>(adjList.size(),-1);
+    cycleDetected = false;
+    DFSDetectCycle(source);
+    return cycleDetected;
+}
+
+//Returns true if target is reachable
+void Individual::DFSDetectCycle(int source)
+{
+    visited[source] = 0; 
+    for (auto it = adjList[source].begin(); it != adjList[source].end(); ++it) 
+    {
+         if (!visited[it->first]) 
+        { 
+            DFSDetectCycle(it->first);
+        } 
+        else if(visited[source] == 0)
+        {
+            cycleDetected = true;
+            return;
+        }
+        if(cycleDetected)
+            return;
+    }
 }
 
 void Individual::removeNonTerminalLeaves()
@@ -61,7 +152,6 @@ void Individual::removeNonTerminalLeaves()
             //Its a leaf and non-terminal
             if(adjList[i].size() == 1 && !params->terminalNodes[i])
             {
-                
                 need_another_iteration = true;
                 int node = adjList[i][0].first;
                 //Removing
@@ -79,10 +169,11 @@ void Individual::removeNonTerminalLeaves()
 
 void Individual::calculateCost()
 {
+    setEdgesSet();
     std::set< std::pair< std::pair<int, int >, int > > edges_set;
+    costSol = 0;
     for(int source = 0; source < adjList.size(); source++)
     {
-        
         for(int target = 0; target < adjList[source].size(); target++)
         {
             int i = source;
@@ -91,12 +182,31 @@ void Individual::calculateCost()
             if(i > j)
                 std::swap(i,j);
             
-            auto result = edges_set.insert(std::make_pair(std::make_pair(i,j),weight));
+            edges_set.insert(std::make_pair(std::make_pair(i,j),weight));
         }
     }
     //solution's edges
     for (const auto& elem: edges_set)
         costSol += elem.second;
+}
+
+void Individual::printEdges()
+{
+    printf("Printing edges:\n");
+    int source, destination;
+    for(int i = 0 ; i < adjList.size(); i++ ) 
+    {
+        for(int j = 0 ; j < adjList[i].size(); j++)
+        {
+            source = i;
+            destination = adjList[i][j].first;
+            if(source < destination)
+            {
+                printf("(%d,%d)\n",source,destination);
+            }
+        }
+    }
+    printf("\n");
 }
 
 void Individual::BFSprint(int source)
@@ -108,7 +218,11 @@ void Individual::BFSprint(int source)
         for(int i = 0; i < adjList.size(); i++)
         {
             if(adjList[i].size() > 0)
+            {   
                 source = i;
+                break;
+            }
+                
         }
     }
     bool *visited = new bool[adjList.size()];
@@ -145,6 +259,6 @@ void Individual::BFSprint(int source)
 
 Individual::Individual(Params * params): params(params)
 {
-    costSol = 0;
+    costSol = INT_MAX;
     adjList = std::vector< std::vector< std::pair<int, int> > >(params->adjList.size());
 };

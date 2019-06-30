@@ -12,6 +12,7 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <map>
 #define MY_EPSILON 0.00001
 
 class Params
@@ -34,20 +35,17 @@ public:
 	clock_t endTime;				// Time when the algorithm ended 
 
 	std::vector< std::vector< std::pair<int, int> > > adjList;
+
+
+	//index is pair (i,j); value is pair(id_edge,weight)
+	std::map< std::pair<int, int>, std::pair<int,int> > edgeMap;
 	std::vector< int > terminalNodes;
 
 	/* CONSTRUCTOR */
 	Params(std::string pathToInstance, std::string pathToSolution, int seed);
 	void PrintGraph();
-
-	int getEdgeWeight(int node1, int node2)
-	{
-		for(int i = 0 ; i < adjList[node1].size(); i++)
-			if(adjList[node1][i].first == node2)
-				return adjList[node1][i].second;
-		throw std::string("Edge not found.\n");
-		return -1;
-	}
-
+	int getEdgeWeight(int node1, int node2);
+	int getNbEdges();
+	void reduceGraph();
 };
 #endif
