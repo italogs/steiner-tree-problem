@@ -18,6 +18,6 @@ public:
     void placeIndividual(Individual *individual);
     void addIndividual(Individual *newIndividual);
     void crossover(Individual *offspring);
-    
+    void mutation();
 };
 #endif

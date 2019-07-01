@@ -105,7 +105,7 @@ void LocalSearch::run(Individual *offspring)
                     }
                     lsIndividual.removeNonTerminalLeaves();
                     lsIndividual.calculateCost();
-                    if(lsIndividual.getCost() < bestLSIndividual.getCost())
+                    if(lsIndividual.isFeasible() && lsIndividual.getCost() < bestLSIndividual.getCost())
                     {
                         found_improvement = true;
                         Individual::copy(&bestLSIndividual,&lsIndividual);

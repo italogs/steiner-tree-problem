@@ -41,6 +41,7 @@ Params::Params(std::string pathToInstance, std::string pathToSolution, int seed)
 	// Initializing random number generator here (if you have nondeterministic components)
 	std::srand(seed);
 	this->maxPopSize = 20;
+	this->mutation_rate = 5;
 	
 	std::cout << "----- INITIALIZING ALGORITHM WITH SEED: " << seed << std::endl;
 	std::ifstream inputFile(pathToInstance.c_str());

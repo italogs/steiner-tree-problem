@@ -26,7 +26,7 @@ public:
 	/* PARAMETERS OF THE ALGORITHM */
 	int seed;						// Random seed (for randomized algorithms)
 	int maxPopSize;
-
+	int mutation_rate;
 	/* INSTANCE INFORMATION */
 	std::string instanceName;								// Name of the dataset
 

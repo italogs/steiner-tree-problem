@@ -23,12 +23,13 @@ int main(int argc, char *argv[])
 		Population pop(&params);
 		LocalSearch localSearch(&params);
 		pop.generateInitialPopulation();
-		int maxFailedAttempts = 5000, nbFailedAttempts = 0;
+		int maxFailedAttempts = 3000, nbFailedAttempts = 0;
 		
 		Individual offspring(&params);
 		Individual bestSolution(&params);
 		Individual::copy(&bestSolution,pop.getBestIndividual());
 		printf("Best initial solution %d\n", bestSolution.getCost());
+		int iteration = 0;
 		while(nbFailedAttempts < maxFailedAttempts)
 		{
 			pop.crossover(&offspring);
@@ -42,11 +43,11 @@ int main(int argc, char *argv[])
 			}
 			else
 				nbFailedAttempts++;
+			pop.mutation();
+			iteration++;
+			if(iteration % 1000 == 0)
+				printf("It: %d\n",iteration);
 		}
-		// int node = 0;
-		// std::vector<int> prev;
-		// std::vector<int> dist = DijkstraSP(params.adjList, node, prev);
-		// // PrintShortestPath(params, dist, node, prev);
 
 		params.endTime = clock();
 		std::cout << ">BEST SOLUTION " << bestSolution.getCost() << "; TIME " << (params.endTime - params.startTime) / (double)CLOCKS_PER_SEC << "(s)" << std::endl;
