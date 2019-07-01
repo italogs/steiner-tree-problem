@@ -136,7 +136,6 @@ void Population::generateInitialPopulation()
             edges_set.insert(std::make_pair(std::make_pair(i,j),weight));
         }
     }
-
     std::vector< std::pair< std::pair<int, int >, int > >  edges_vector(edges_set.begin(),edges_set.end());
     for(int i = 0 ; i < params->maxPopSize; i++)
     {
@@ -145,9 +144,7 @@ void Population::generateInitialPopulation()
         for (const auto& elem: edges_vector) {
             newIndividual->insertEdgeIfFeasible(elem.first.first, elem.first.second, elem.second);
         }
-        // newIndividual->BFSprint(-1);
         newIndividual->removeNonTerminalLeaves();
-        // newIndividual->BFSprint(-1);
         newIndividual->calculateCost();
         this->addIndividual(newIndividual);
     }

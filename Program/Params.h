@@ -36,7 +36,6 @@ public:
 
 	std::vector< std::vector< std::pair<int, int> > > adjList;
 
-
 	//index is pair (i,j); value is pair(id_edge,weight)
 	std::map< std::pair<int, int>, std::pair<int,int> > edgeMap;
 	std::vector< int > terminalNodes;
@@ -46,6 +45,6 @@ public:
 	void PrintGraph();
 	int getEdgeWeight(int node1, int node2);
 	int getNbEdges();
-	void reduceGraph();
+	int getNbNodes();
 };
 #endif

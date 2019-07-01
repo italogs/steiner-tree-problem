@@ -71,7 +71,6 @@ void LocalSearch::nodeBasedNeighborhood()
                 else
                 {
                     lsIndividual.eraseEdges();
-
                     // copying solution
                     for(int j = 0; j < offspring->adjList.size(); j++)
                         lsIndividual.adjList[j] = offspring->adjList[j];
@@ -80,7 +79,7 @@ void LocalSearch::nodeBasedNeighborhood()
                     for(int j = 0; j < params->adjList[candidate_node].size(); j++)
                     {
                         int k = params->adjList[candidate_node][j].first;
-                        if(offspring->adjList[k].size() > 0 )
+                        if(offspring->adjList[k].size() > 0)
                         {
                             int weight = params->adjList[candidate_node][j].second;
                             lsIndividual.adjList[k].push_back(std::make_pair(candidate_node, weight));
@@ -88,9 +87,7 @@ void LocalSearch::nodeBasedNeighborhood()
                         }
                     }
 
-                    //Run kruskal's algorithm
                     lsIndividual.setEdgesSet();
-
 
                     //Sort edges
                     std::vector<std::pair<std::pair<int,int>,int>> edges_vector;
@@ -103,7 +100,7 @@ void LocalSearch::nodeBasedNeighborhood()
                         int destination = edge.second;
                         edges_vector.push_back(std::make_pair(std::make_pair(source, destination), weight));
                     }
-                    std::sort(edges_vector.begin(),edges_vector.end(), LocalSearch::sortAscEdges);                   
+                    std::sort(edges_vector.begin(),edges_vector.end(), LocalSearch::sortAscEdges);
                     std::vector<std::pair<std::pair<int,int>,int>>::iterator it;
                     lsIndividual.eraseEdges();
                     for (it = edges_vector.begin(); it!=edges_vector.end(); it++) 
@@ -114,8 +111,6 @@ void LocalSearch::nodeBasedNeighborhood()
                         lsIndividual.insertEdgeIfFeasible(u,v,weight);
                     }
                     lsIndividual.removeNonTerminalLeaves();
-
-
                     lsIndividual.calculateCost();
                     if(lsIndividual.getCost() < bestLSIndividual.getCost())
                     {
@@ -126,38 +121,56 @@ void LocalSearch::nodeBasedNeighborhood()
             } 
             else // Delete candidate
             {
-                // candidate_node
+                // // candidate_node
                 lsIndividual.eraseEdges();
-                std::set<std::pair<std::pair<int,int>,int>> myEdgeSet;
-                //Collect all edges that are not adjacent in candidate_node
-                for( auto &edge : offspring->edgesSet)
+                for(int j = 0; j < offspring->adjList.size(); j++)
+                    lsIndividual.adjList[j] = offspring->adjList[j];
+
+                //We eliminate candidate_node from the graph. 
+                //In other words, we remove all edges adjacent to candidate_node
+                for (int i = 0 ; i < lsIndividual.adjList[candidate_node].size(); i++)
+                {//For each v adjacent to candidate_node, we eliminate its symetric
+                    int destination = lsIndividual.adjList[candidate_node][i].first;
+                    for (int j = 0 ; j < lsIndividual.adjList[destination].size(); j++)
+                    {
+                        if(lsIndividual.adjList[destination][j].first = candidate_node)
+                        {
+                            lsIndividual.adjList[destination].erase(lsIndividual.adjList[destination].begin() + j);
+                            break;
+                        }
+                    }
+                }
+                lsIndividual.adjList[candidate_node].clear();                
+                //Insert edges (u,v), where u is adjacent to candidate_node and v is in the graph
+                for(int i = 0; i < params->adjList[candidate_node].size(); i++)
+                {
+                    int u = params->adjList[candidate_node][i].first;
+                    for (int j = 0 ; j < params->adjList[u].size() ; j++)
+                    {
+                        int v = params->adjList[u][j].first;
+                        int weight = params->adjList[u][j].second;
+                        //If v its in the graph
+                        if(lsIndividual.adjList[v].size() > 0)
+                        {
+                            lsIndividual.adjList[u].push_back(std::make_pair(v,weight));
+					        lsIndividual.adjList[v].push_back(std::make_pair(u,weight));
+                        }
+                    }
+                }
+                lsIndividual.setEdgesSet();
+
+                std::vector<std::pair<std::pair<int,int>,int>> edges_vector;
+                for(auto &edge : lsIndividual.edgesSet)
                 {
                     std::pair<int,int> edge_info = params->edgeMap[edge];
                     int weight = edge_info.second;
                     int source = edge.first;
                     int destination = edge.second;
-                    if(source == candidate_node || destination == candidate_node)
-                        continue;
-                    myEdgeSet.insert({edge,weight});
+                    edges_vector.push_back(std::make_pair(std::make_pair(source, destination), weight));
                 }
-                
-                for(int i = 0; i < params->adjList[candidate_node].size(); i++)
-                {
-                    int source = candidate_node;
-                    int destination = params->adjList[source][i].first;
-                    int weight = params->adjList[source][i].second;
-                    if(offspring->adjList[destination].size() > 1)
-                    {
-                        if(source > destination)
-                            std::swap(source,destination);
-                        myEdgeSet.insert({{source, destination},weight});
-                    }
-                }
-                std::vector<std::pair<std::pair<int,int>,int>> edges_vector(myEdgeSet.begin(), myEdgeSet.end());
-                
-                std::sort(edges_vector.begin(),edges_vector.end(), LocalSearch::sortAscEdges);                   
-                std::vector<std::pair<std::pair<int,int>,int>>::iterator it;
+                std::sort(edges_vector.begin(),edges_vector.end(), LocalSearch::sortAscEdges);
                 lsIndividual.eraseEdges();
+                std::vector<std::pair<std::pair<int,int>,int>>::iterator it;
                 for (it = edges_vector.begin(); it!=edges_vector.end(); it++) 
                 {
                     int u = it->first.first; 
@@ -171,16 +184,13 @@ void LocalSearch::nodeBasedNeighborhood()
                 {
                     found_improvement = true;
                     Individual::copy(&bestLSIndividual,&lsIndividual);
-                }                
+                }   
             }
         }
         if(bestLSIndividual.getCost() < offspring->getCost())
             Individual::copy(offspring,&bestLSIndividual);
     }
-
 }
-
-
 
 bool LocalSearch::sortAscEdges( std::pair< std::pair<int,int> ,int > i, std::pair< std::pair< int,int > , int > j)
 {

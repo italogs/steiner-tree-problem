@@ -76,16 +76,17 @@ bool Individual::insertEdgeIfFeasible(int source, int target, int weight)
 
 bool Individual::isFeasible()
 {
+    //Do a BFS and check if graph is connected
     int source = -1;
 
     bool *visited = new bool[adjList.size()];
     for(int i = 0; i < adjList.size(); i++) 
     {
         if(adjList[i].size() > 0 && source < 0)
-            source = 0;
+            source = i;
         visited[i] = false; 
     }
-        
+
     // Create a queue for BFS 
     std::list<int> queue; 
     int current_node = source;
@@ -112,6 +113,7 @@ bool Individual::isFeasible()
     for(int i = 0; i < adjList.size(); i++)
         if(adjList[i].size() > 0 && !visited[i])
             return false;
+
     return true;
 }
 
@@ -196,19 +198,21 @@ void Individual::removeNonTerminalLeaves()
         need_another_iteration = false;
         for (int i = 0 ; i < adjList.size(); i++)
         {
-            //Its a leaf and non-terminal
-            if(adjList[i].size() == 1 && !params->terminalNodes[i])
+            //It's a leaf and non-terminal
+            if(adjList[i].size() == 1 && params->terminalNodes[i] == 0)
             {
                 need_another_iteration = true;
-                int node = adjList[i][0].first;
-                //Removing
-                adjList[i].erase(adjList[i].begin());
-                //Doing a symetric deletion
-                for(int j = 0 ; j < adjList[node].size(); j++)
+                int adj_node = adjList[i][0].first;
+                for(int j = 0 ; j < adjList[adj_node].size(); j++)
                 {
-                    if(adjList[node][j].first == i)
-                        adjList[node].erase(adjList[node].begin()+j);
+                    if(adjList[adj_node][j].first == i)
+                    {
+                        adjList[adj_node].erase(adjList[adj_node].begin() + j);
+                        break;
+                    }
                 }
+                adjList[i].clear();
+                break;
             }
         }
     }
@@ -307,5 +311,5 @@ void Individual::BFSprint(int source)
 Individual::Individual(Params * params): params(params)
 {
     costSol = INT_MAX;
-    adjList = std::vector< std::vector< std::pair<int, int> > >(params->adjList.size());
+    adjList = std::vector< std::vector< std::pair<int, int> > >(params->getNbNodes());
 };

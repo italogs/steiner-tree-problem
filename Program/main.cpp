@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 		Population pop(&params);
 		LocalSearch localSearch(&params);
 		pop.generateInitialPopulation();
-		int maxFailedAttempts = 10000, nbFailedAttempts = 0;
+		int maxFailedAttempts = 3000, nbFailedAttempts = 0;
 		
 		Individual offspring(&params);
 		Individual bestSolution(&params);
@@ -43,14 +43,14 @@ int main(int argc, char *argv[])
 				nbFailedAttempts++;
 			}
 		}
-		printf("final bestSolutionCost %d\n", bestSolution.getCost());
+		printf("** Final Solution %d\n", bestSolution.getCost());
 		// int node = 0;
 		// std::vector<int> prev;
 		// std::vector<int> dist = DijkstraSP(params.adjList, node, prev);
 		// // PrintShortestPath(params, dist, node, prev);
 
 		params.endTime = clock();
-		std::cout << "----- ALGORITHM COMPLETED IN " << (params.endTime - params.startTime) / (double)CLOCKS_PER_SEC << "(s)" << std::endl;
+		std::cout << "TIME " << (params.endTime - params.startTime) / (double)CLOCKS_PER_SEC << "(s)" << std::endl;
 		
 		// Printing the solution and exporting statistics (also export results into a file)
 		std::cout << "----- END OF ALGORITHM" << std::endl;
