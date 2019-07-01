@@ -1,6 +1,5 @@
 #include "Params.h"
-#include <queue>
-#include <list>
+
 #include "Individual.h"
 
 void Params::PrintGraph()
@@ -24,12 +23,12 @@ void Params::PrintGraph()
 
 int Params::getEdgeWeight(int node1, int node2)
 {
-	for(int i = 0 ; i < adjList[node1].size(); i++)
-		if(adjList[node1][i].first == node2)
-			return adjList[node1][i].second;
+	if(node1 > node2)
+		std::swap(node1,node2);
+	auto edge = edgeMap[{node1,node2}];
+	return edge.second;
 	throw std::string("Edge not found.\n");
 }
-
 
 int Params::getNbEdges()
 {	

@@ -1,18 +1,6 @@
 #ifndef LOCALSEARCH_H
 #define LOCALSEARCH_H
 
-#include <string>
-#include <vector>
-#include <set>
-#include <fstream>
-#include <iostream>
-#include <algorithm> 
-#include <time.h>
-#include <math.h>
-#include <iostream>
-#include <vector>
-#include <queue>
-#include <map>
 #include "Params.h"
 #include "Individual.h"
 

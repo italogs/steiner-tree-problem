@@ -1,8 +1,14 @@
 #ifndef INDIVIDUAL_H
 #define INDIVIDUAL_H
 
-#include <vector>
+
 #include "Params.h"
+#include <list>
+#include <vector>
+#include <set>
+#include <climits>
+#include <cstdlib>
+
 
 class Individual
 {
@@ -12,8 +18,6 @@ private:
 	// Access to the problem and dataset parameters
 	Params * params;
 	std::vector<int> visited;
-	bool cycleDetected;
-	void DFSDetectCycle(int source);
 public:
 	int costSol;
 	std::set<std::pair<int,int>> edgesSet;
@@ -23,7 +27,6 @@ public:
 	bool insertEdgeIfFeasible(int source, int target, int weight);
 	bool BFS(int source, int target);
 	void BFSprint(int source);
-	bool DFS(int source);
 	bool isFeasible();
 	
 	void printEdges();

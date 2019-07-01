@@ -1,18 +1,17 @@
 #ifndef PARAMS_H
 #define PARAMS_H
 
-#include <string>
 #include <vector>
 #include <set>
-#include <fstream>
 #include <iostream>
+#include <queue>
+#include <fstream>
+#include <map>
+#include <climits>
 #include <algorithm> 
 #include <time.h>
 #include <math.h>
-#include <iostream>
-#include <vector>
-#include <queue>
-#include <map>
+
 #define MY_EPSILON 0.00001
 
 class Params

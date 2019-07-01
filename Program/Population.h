@@ -1,6 +1,6 @@
 #ifndef POPULATION_H
 #define POPULATION_H
-#include <vector>
+
 #include "Individual.h"
 #include "Params.h"
 

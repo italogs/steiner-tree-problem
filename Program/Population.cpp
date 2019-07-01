@@ -1,6 +1,3 @@
-#include <vector>
-#include <set>
-#include <unordered_set>
 
 #include "Population.h"
 #include "Params.h"

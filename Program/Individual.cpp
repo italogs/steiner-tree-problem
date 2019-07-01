@@ -1,33 +1,10 @@
 #include "Individual.h"
-#include <list>
-#include <queue>
-#include <set>
-#include <climits>
-#include <cstdlib>
 
 void Individual::copy(Individual * destination, Individual * source)
 {
     destination->adjList = source->adjList;
+    destination->edgesSet = source->edgesSet;
     destination->costSol = source->costSol;
-}
-
-void Individual::setEdgesSet()
-{
-    edgesSet.clear();
-    int source, destination;
-    for(int i = 0 ; i < adjList.size(); i++ ) 
-    {
-        for(int j = 0 ; j < adjList[i].size(); j++)
-        {
-            source = i;
-            destination = adjList[i][j].first;
-            std::pair<int,int> edge;
-            if(source > destination)
-                std::swap(source,destination);
-            edge = std::make_pair(source, destination);
-            edgesSet.insert(edge);
-        }
-    }
 }
 
 //O(m log m)
@@ -109,7 +86,6 @@ bool Individual::isFeasible()
             }
         }
     }
-
     for(int i = 0; i < adjList.size(); i++)
         if(adjList[i].size() > 0 && !visited[i])
             return false;
@@ -151,45 +127,6 @@ bool Individual::BFS(int source, int target)
     return false;
 }
 
-bool Individual::DFS(int source)
-{
-    if(source < 0)
-    {
-        for(int i = 0; adjList.size();i++)
-        {
-            if(adjList[i].size() > 0)
-            {
-                source = i;
-                break;
-            }
-        }
-    }
-    visited = std::vector<int>(adjList.size(),-1);
-    cycleDetected = false;
-    DFSDetectCycle(source);
-    return cycleDetected;
-}
-
-//Returns true if target is reachable
-void Individual::DFSDetectCycle(int source)
-{
-    visited[source] = 0; 
-    for (auto it = adjList[source].begin(); it != adjList[source].end(); ++it) 
-    {
-         if (!visited[it->first]) 
-        { 
-            DFSDetectCycle(it->first);
-        } 
-        else if(visited[source] == 0)
-        {
-            cycleDetected = true;
-            return;
-        }
-        if(cycleDetected)
-            return;
-    }
-}
-
 void Individual::removeNonTerminalLeaves()
 {
     bool need_another_iteration = true;
@@ -218,27 +155,33 @@ void Individual::removeNonTerminalLeaves()
     }
 }
 
+void Individual::setEdgesSet()
+{
+    edgesSet.clear();
+    int source, destination;
+    for(int i = 0 ; i < adjList.size(); i++ ) 
+    {
+        for(int j = 0 ; j < adjList[i].size(); j++)
+        {
+            source = i;
+            destination = adjList[i][j].first;
+            if(source > destination)
+                std::swap(source,destination);
+            edgesSet.insert({source, destination});
+        }
+    }
+}
+
 void Individual::calculateCost()
 {
     setEdgesSet();
-    std::set< std::pair< std::pair<int, int >, int > > edges_set;
     costSol = 0;
-    for(int source = 0; source < adjList.size(); source++)
-    {
-        for(int target = 0; target < adjList[source].size(); target++)
-        {
-            int i = source;
-            int j = adjList[source][target].first;
-            int weight = adjList[source][target].second;
-            if(i > j)
-                std::swap(i,j);
-            
-            edges_set.insert(std::make_pair(std::make_pair(i,j),weight));
-        }
-    }
     //solution's edges
-    for (const auto& elem: edges_set)
-        costSol += elem.second;
+    for (auto& edge: edgesSet)
+    {   
+        auto edge_info = params->edgeMap[edge];
+        costSol += edge_info.second;
+    }
 }
 
 void Individual::printEdges()
