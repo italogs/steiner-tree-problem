@@ -10,7 +10,7 @@ cd ..
 
 mytimestamp=`date "+%d-%m-%y-%H-%M-%S"`
 
-Program/steiner Instances/B/b01.stp -seed 1
+Program/steiner Instances/B/b18.stp -seed 1
 
 # #Set B
 # INSTANCES=('b01.stp' 'b02.stp' 'b03.stp' 'b04.stp' 'b05.stp' 'b06.stp' 'b07.stp' 'b08.stp' 'b09.stp' 'b10.stp' 'b11.stp' 'b12.stp' 'b13.stp' 'b14.stp' 'b15.stp' 'b16.stp' 'b17.stp' 'b18.stp')

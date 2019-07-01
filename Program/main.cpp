@@ -3,10 +3,11 @@
 #include "Individual.h"
 #include "Population.h"
 #include "LocalSearch.h"
-
+#include <climits>
 
 void PrintShortestPath(Params &params, std::vector<int> &dist, int &start, std::vector<int> &prev);
 std::vector<int> DijkstraSP(std::vector< std::vector<std::pair<int, int> > > &adjList, int &start, std::vector<int> &prev);
+int getWeightShortestPathFromUToV(std::vector< std::vector<std::pair<int, int> > > &adjList, int source, int destination);
 void reduceInputGraph(Params *params);
 
 int main(int argc, char *argv[])
@@ -39,10 +40,8 @@ int main(int argc, char *argv[])
 				printf("Best local optima improved: %d\n", bestSolution.getCost());
 				nbFailedAttempts = 0;
 			}
-			else 
-			{
+			else
 				nbFailedAttempts++;
-			}
 		}
 		// int node = 0;
 		// std::vector<int> prev;
@@ -70,6 +69,30 @@ void reduceInputGraph(Params *params)
 	original_graph.removeNonTerminalLeaves();
 	for(int i = 0 ; i < original_graph.adjList.size() ; i++)
 	{
+		for (int j = original_graph.adjList[i].size() -1 ; j >= 0; j--)
+		{
+			int source = i;
+			int destination = original_graph.adjList[i][j].first;
+			int weight = original_graph.adjList[i][j].second;
+			int path_weight = getWeightShortestPathFromUToV(original_graph.adjList,source,destination);
+			if(path_weight <  weight)
+			{	
+				//Remove edge (source,destination) as there is better cost through a path
+				for(int k = 0; k < original_graph.adjList[destination].size(); k++)
+				{
+					if(original_graph.adjList[destination][k].first == source)
+					{
+						original_graph.adjList[destination].erase(original_graph.adjList[destination].begin()+k);
+						break;
+					}
+				}
+				original_graph.adjList[i].erase(original_graph.adjList[i].begin()+j);
+			}
+		}
+	}
+	original_graph.removeNonTerminalLeaves();
+	for(int i = 0 ; i < original_graph.adjList.size() ; i++)
+	{
 		if(original_graph.adjList[i].size() == 0)
 		{
 			nbRemovedVertices++;
@@ -82,38 +105,52 @@ void reduceInputGraph(Params *params)
 	printf("----- END OF PREPROCESSING INSTANCE\n");
 }
 
-void PrintShortestPath(Params &params, std::vector<int> &dist, int &start, std::vector<int> &prev)
+int getWeightShortestPathFromUToV(std::vector< std::vector<std::pair<int, int> > > &adjList, int source, int destination)
 {
-	std::cout << "Printing the shortest paths for node " << start << ".\n";
-	
-	std::vector<int> S;
-	int u, target;
-	u = target = 41;
-	if(prev[u] > -1 || u == start){
-		while( u > -1 )
+	//  std::cout << "Getting the shortest path from " << source << " to all other nodes.\n";
+    std::vector<int> dist;
+    
+    // Initialize all source->vertex as infinite.
+    int n = adjList.size();
+    for(int i = 0; i < n; i++)
+        dist.push_back(INT_MAX); // Define "infinity" as necessary by constraints.
+        
+    // Create a PQ.
+    std::priority_queue<std::pair<int, int>, std::vector< std::pair<int, int> >, std::greater<std::pair<int, int> > > pq;
+    
+    // Add source to pq, where distance is 0.
+    pq.push(std::make_pair(source, 0));
+    dist[source] = 0;
+    
+    // While pq isn't empty...
+    while(pq.empty() == false)
+	{
+        // Get min distance vertex from pq. (Call it u.)
+        int u = pq.top().first;
+        pq.pop();
+        
+        // Visit all of u's friends. For each one (called v)....
+        for(int i = 0; i < adjList[u].size(); i++)
 		{
-			S.push_back(u);
-			u = prev[u];
+            int v = adjList[u][i].first;
+            int weight = adjList[u][i].second;
+            
+            // If the distance to v is shorter by going through u...
+            if(dist[v] > dist[u] + weight)
+			{
+				
+				// Update the distance of v.
+				dist[v] = dist[u] + weight;
+				// Insert v into the pq. 
+				pq.push(std::make_pair(v, dist[v]));
+			}
 		}
 	}
-	printf("source: %d, target: %d, dist[i]: %d\n",start,target,dist[target]);
-	u = start;
-	
-	int total_weight = 0;
-	for(int i = S.size() - 1; i > 0 ; i--)
-	{
-		total_weight += params.getEdgeWeight(S[i],S[i-1]);
-		printf("%d-%d (%d) -> ", S[i], S[i-1], total_weight);
-	}
-	
-	printf("Dist final  %d dist[.] = %d\n",total_weight,dist[target]);
+	return dist[destination];
+    // return dist;
 
-
-	for(int i = 0; i < dist.size(); i++)
-	{
-		std::cout << "The distance from node " << start << " to node " << i << " is: " << dist[i] << std::endl;
-	}	
 }
+
 
 std::vector<int> DijkstraSP(std::vector< std::vector<std::pair<int, int> > > &adjList, int &start, std::vector<int> &prev)
 {
@@ -125,7 +162,7 @@ std::vector<int> DijkstraSP(std::vector< std::vector<std::pair<int, int> > > &ad
     int n = adjList.size();
     for(int i = 0; i < n; i++)
 	{
-        dist.push_back(1000000007); // Define "infinity" as necessary by constraints.
+        dist.push_back(INT_MAX); // Define "infinity" as necessary by constraints.
 		prev.push_back(-1);
 	}
         
@@ -159,8 +196,39 @@ std::vector<int> DijkstraSP(std::vector< std::vector<std::pair<int, int> > > &ad
 				prev[v] = u;
 			}
 		}
-	}
-
-    
+	}    
     return dist;
+}
+
+void PrintShortestPath(Params &params, std::vector<int> &dist, int &start, std::vector<int> &prev)
+{
+	std::cout << "Printing the shortest paths for node " << start << ".\n";
+	
+	std::vector<int> S;
+	int u, target;
+	u = target = 41;
+	if(prev[u] > -1 || u == start){
+		while( u > -1 )
+		{
+			S.push_back(u);
+			u = prev[u];
+		}
+	}
+	printf("source: %d, target: %d, dist[i]: %d\n",start,target,dist[target]);
+	u = start;
+	
+	int total_weight = 0;
+	for(int i = S.size() - 1; i > 0 ; i--)
+	{
+		total_weight += params.getEdgeWeight(S[i],S[i-1]);
+		printf("%d-%d (%d) -> ", S[i], S[i-1], total_weight);
+	}
+	
+	printf("Dist final  %d dist[.] = %d\n",total_weight,dist[target]);
+
+
+	for(int i = 0; i < dist.size(); i++)
+	{
+		std::cout << "The distance from node " << start << " to node " << i << " is: " << dist[i] << std::endl;
+	}	
 }
