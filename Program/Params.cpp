@@ -1,6 +1,7 @@
 #include "Params.h"
 #include <queue>
 #include <list>
+#include "Individual.h"
 
 void Params::PrintGraph()
 {
@@ -125,8 +126,7 @@ Params::Params(std::string pathToInstance, std::string pathToSolution, int seed)
 				}
 			}
 		}
-		std::cout << "----- INSTANCE WAS READ" << std::endl;
-		// reduceGraph();
+		std::cout << "----- INSTANCE WAS READ" << std::endl;	
 	}
 	else
 	{

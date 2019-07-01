@@ -7,7 +7,7 @@
 
 void PrintShortestPath(Params &params, std::vector<int> &dist, int &start, std::vector<int> &prev);
 std::vector<int> DijkstraSP(std::vector< std::vector<std::pair<int, int> > > &adjList, int &start, std::vector<int> &prev);
-
+void reduceInputGraph(Params *params);
 
 int main(int argc, char *argv[])
 {
@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
 	{
 		// Initialization of the problem data from the commandline
 		Params params(c.get_path_to_instance(), c.get_path_to_solution(), c.get_seed());
+		reduceInputGraph(&params);
 		std::cout << "----- STARTING ALGORITHM" << std::endl;
 		params.startTime = clock();
 		Population pop(&params);
@@ -26,7 +27,7 @@ int main(int argc, char *argv[])
 		Individual offspring(&params);
 		Individual bestSolution(&params);
 		Individual::copy(&bestSolution,pop.getBestIndividual());
-		printf("initial bestSolutionCost %d\n", bestSolution.getCost());
+		printf("Best initial solution %d\n", bestSolution.getCost());
 		while(nbFailedAttempts < maxFailedAttempts)
 		{
 			pop.crossover(&offspring);
@@ -35,7 +36,7 @@ int main(int argc, char *argv[])
 			if(offspring.getCost() < bestSolution.getCost())
 			{
 				Individual::copy(&bestSolution,&offspring);
-				printf("new bestSolutionCost %d\n", bestSolution.getCost());
+				printf("Best local optima improved: %d\n", bestSolution.getCost());
 				nbFailedAttempts = 0;
 			}
 			else 
@@ -43,19 +44,42 @@ int main(int argc, char *argv[])
 				nbFailedAttempts++;
 			}
 		}
-		printf("** Final Solution %d\n", bestSolution.getCost());
 		// int node = 0;
 		// std::vector<int> prev;
 		// std::vector<int> dist = DijkstraSP(params.adjList, node, prev);
 		// // PrintShortestPath(params, dist, node, prev);
 
 		params.endTime = clock();
-		std::cout << "TIME " << (params.endTime - params.startTime) / (double)CLOCKS_PER_SEC << "(s)" << std::endl;
+		std::cout << ">BEST SOLUTION " << bestSolution.getCost() << "; TIME " << (params.endTime - params.startTime) / (double)CLOCKS_PER_SEC << "(s)" << std::endl;
 		
 		// Printing the solution and exporting statistics (also export results into a file)
 		std::cout << "----- END OF ALGORITHM" << std::endl;
 	}
 	return 0;
+}
+
+
+void reduceInputGraph(Params *params)
+{
+	printf("----- START OF PREPROCESSING INSTANCE\n");
+	Individual original_graph(params);
+	//Copy graph
+	original_graph.adjList = params->adjList;
+	int nbRemovedEdges = 0;
+	int nbRemovedVertices = 0;
+	original_graph.removeNonTerminalLeaves();
+	for(int i = 0 ; i < original_graph.adjList.size() ; i++)
+	{
+		if(original_graph.adjList[i].size() == 0)
+		{
+			nbRemovedVertices++;
+			nbRemovedEdges += params->adjList[i].size();
+		}
+	}
+	printf("nbRemovedEdges; %d; -%.2lf\n", nbRemovedEdges, nbRemovedEdges*100.0/((int)params->edgeMap.size()));
+	printf("nbRemovedVertices; %d; -%.2lf\n", nbRemovedVertices,  nbRemovedVertices*100.0/((int)params->adjList.size()));
+	params->adjList = original_graph.adjList;
+	printf("----- END OF PREPROCESSING INSTANCE\n");
 }
 
 void PrintShortestPath(Params &params, std::vector<int> &dist, int &start, std::vector<int> &prev)

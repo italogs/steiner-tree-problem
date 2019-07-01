@@ -16,13 +16,6 @@ LocalSearch::LocalSearch(Params *params): params(params)
 
 void LocalSearch::run(Individual *offspring)
 {
-    this->offspring = offspring;
-    nodeBasedNeighborhood();
-}
-
-
-void LocalSearch::nodeBasedNeighborhood()
-{
     bool found_improvement = true;
     while(found_improvement)
     {
