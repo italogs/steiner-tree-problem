@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 		Population pop(&params);
 		LocalSearch localSearch(&params);
 		pop.generateInitialPopulation();
-		int maxFailedAttempts = 3000, nbFailedAttempts = 0;
+		int maxFailedAttempts = 5000, nbFailedAttempts = 0;
 		
 		Individual offspring(&params);
 		Individual bestSolution(&params);
