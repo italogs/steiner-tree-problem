@@ -30,8 +30,7 @@ int main(int argc, char *argv[])
 		while(nbFailedAttempts < maxFailedAttempts)
 		{
 			pop.crossover(&offspring);
-			// localSearch.run(&offspring);
-			//local search(offspring)
+			localSearch.run(&offspring);
 			pop.placeIndividual(&offspring);
 			if(offspring.getCost() < bestSolution.getCost())
 			{

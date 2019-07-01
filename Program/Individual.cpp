@@ -59,15 +59,62 @@ int Individual::getCost()
     return this->costSol;
 }
 
-void Individual::insertEdgeIfFeasible(int source, int target, int weight)
+bool Individual::insertEdgeIfFeasible(int source, int target, int weight)
 {
     //It creates cycle? If so, don't insert
     if(!this->BFS(source,target))
     {
         adjList[source].push_back(std::make_pair(target,weight));
         adjList[target].push_back(std::make_pair(source,weight));
+        if(source > target)
+            std::swap(source, target);
+        edgesSet.insert({source, target});
+        return true;
     }
+    return false;
 }
+
+bool Individual::isFeasible()
+{
+    int source = -1;
+
+    bool *visited = new bool[adjList.size()];
+    for(int i = 0; i < adjList.size(); i++) 
+    {
+        if(adjList[i].size() > 0 && source < 0)
+            source = 0;
+        visited[i] = false; 
+    }
+        
+    // Create a queue for BFS 
+    std::list<int> queue; 
+    int current_node = source;
+    // Mark the current node as visited and enqueue it 
+    visited[current_node] = true; 
+    queue.push_back(current_node); 
+
+    while(!queue.empty()) 
+    { 
+        // Dequeue a vertex from queue and print it 
+        current_node = queue.front(); 
+        queue.pop_front(); 
+
+        for (auto it = adjList[current_node].begin(); it != adjList[current_node].end(); ++it) 
+        {
+            if (!visited[it->first]) 
+            {
+                visited[it->first] = true; 
+                queue.push_back(it->first); 
+            }
+        }
+    }
+
+    for(int i = 0; i < adjList.size(); i++)
+        if(adjList[i].size() > 0 && !visited[i])
+            return false;
+    return true;
+}
+
 
 //Returns true if target is reachable
 bool Individual::BFS(int source, int target)

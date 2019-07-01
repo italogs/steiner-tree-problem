@@ -20,10 +20,11 @@ public:
 	//At each node i, we have node[i] --> pair(destination,weight)
 	std::vector< std::vector< std::pair<int, int> > > adjList;
 	Individual(Params * params);
-	void insertEdgeIfFeasible(int source, int target, int weight);
+	bool insertEdgeIfFeasible(int source, int target, int weight);
 	bool BFS(int source, int target);
 	void BFSprint(int source);
 	bool DFS(int source);
+	bool isFeasible();
 	
 	void printEdges();
 	void removeNonTerminalLeaves();
