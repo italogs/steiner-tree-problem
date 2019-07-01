@@ -1,14 +1,11 @@
 #ifndef INDIVIDUAL_H
 #define INDIVIDUAL_H
-
-
 #include "Params.h"
 #include <list>
 #include <vector>
 #include <set>
 #include <climits>
 #include <cstdlib>
-
 
 class Individual
 {
@@ -17,7 +14,7 @@ private:
 
 	// Access to the problem and dataset parameters
 	Params * params;
-	std::vector<int> visited;
+	std::vector<bool> visited;
 public:
 	int costSol;
 	std::set<std::pair<int,int>> edgesSet;

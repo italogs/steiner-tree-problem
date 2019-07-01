@@ -56,7 +56,6 @@ bool Individual::isFeasible()
     //Do a BFS and check if graph is connected
     int source = -1;
 
-    bool *visited = new bool[adjList.size()];
     for(int i = 0; i < adjList.size(); i++) 
     {
         if(adjList[i].size() > 0 && source < 0)
@@ -97,7 +96,6 @@ bool Individual::isFeasible()
 //Returns true if target is reachable
 bool Individual::BFS(int source, int target)
 {
-    bool *visited = new bool[adjList.size()];
     for(int i = 0; i < adjList.size(); i++) 
         visited[i] = false; 
     // Create a queue for BFS 
@@ -216,10 +214,8 @@ void Individual::BFSprint(int source)
                 source = i;
                 break;
             }
-                
         }
     }
-    bool *visited = new bool[adjList.size()];
     for(int i = 0; i < adjList.size(); i++) 
         visited[i] = false; 
     // Create a queue for BFS 
@@ -255,4 +251,5 @@ Individual::Individual(Params * params): params(params)
 {
     costSol = INT_MAX;
     adjList = std::vector< std::vector< std::pair<int, int> > >(params->getNbNodes());
+    visited = std::vector<bool>(params->getNbEdges());
 };

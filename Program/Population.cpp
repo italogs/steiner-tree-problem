@@ -183,7 +183,7 @@ void Population::crossover(Individual *offspring)
     Individual *parent2 = this->binaryTournament();
     std::vector<int> edgeIncidenceVectorParent1(params->getNbEdges(),0), edgeIncidenceVectorParent2(params->getNbEdges(),0),edgeIncidenceVectorOffspring(params->getNbEdges(),0);
 
-    //making a incidence vector for cutting
+    //making an incidence vector for cutting
     int source, destination;
     for(int i = 0 ; i < parent1->adjList.size() ; i++)
     {
