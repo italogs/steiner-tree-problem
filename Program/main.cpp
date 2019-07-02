@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 		Population pop(&params);
 		LocalSearch localSearch(&params);
 		pop.generateInitialPopulation();
-		int maxFailedAttempts = 3000, nbFailedAttempts = 0;
+		int maxFailedAttempts = 2000, nbFailedAttempts = 0;
 		
 		Individual offspring(&params);
 		Individual bestSolution(&params);
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 			if(offspring.getCost() < bestSolution.getCost())
 			{
 				Individual::copy(&bestSolution,&offspring);
-				printf("Best local optima improved: %d\n", bestSolution.getCost());
+				printf("Best local optima improved: %d (iteration %d) \n", bestSolution.getCost(),iteration);
 				nbFailedAttempts = 0;
 			}
 			else
