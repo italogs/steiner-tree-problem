@@ -23,7 +23,6 @@ void LocalSearch::run(Individual *offspring)
             if(!params->terminalNodes[i])
                 candidate_steiner_nodes.push_back(i);
 
-        std::random_shuffle(candidate_steiner_nodes.begin(), candidate_steiner_nodes.end());
         for(int i = 0 ; i < candidate_steiner_nodes.size(); i++)
         {
             int candidate_node = candidate_steiner_nodes[i];

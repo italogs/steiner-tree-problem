@@ -36,14 +36,18 @@ void Population::mutation()
         vertex = std::rand() % params->getNbNodes();
     }
     //vertex is not in the graph, so we insert it
-    if(offspring->adjList[vertex].size() == 0)
+    
+    int candidate_node = vertex;
+    //Insert candidate
+    if(offspring->adjList[candidate_node].size() > 0)
+    // if(out_steiner_nodes.find(candidate_node) == out_steiner_nodes.end())
     {
         clone.eraseEdges();
         int min_edges = 0;
         //Check in graph if the candidate node has at least 2 edges in in_steiner_nodes
-        for(int j = 0; j < params->adjList[vertex].size(); j++)
+        for(int j = 0; j < params->adjList[candidate_node].size(); j++)
         {
-            int k = params->adjList[vertex][j].first;
+            int k = params->adjList[candidate_node][j].first;
             if(offspring->adjList[k].size() > 0 )
                 min_edges++;
             if(min_edges > 1)
@@ -52,77 +56,47 @@ void Population::mutation()
 
         if (min_edges < 2) //Infeasible insertion
             return;
-        else
+    
+        clone.eraseEdges();
+        // copying solution
+        Individual::copy(&clone,offspring);
+        
+        //including node u and all edges (u,v) if v is a steiner node in offspring
+        for(int j = 0; j < params->adjList[candidate_node].size(); j++)
         {
-            clone.eraseEdges();
-            // copying solution
-            for(int j = 0; j < offspring->adjList.size(); j++)
-                clone.adjList[j] = offspring->adjList[j];
-            
-            //including node u and all edges (u,v) if v is a steiner node in offspring
-            for(int j = 0; j < params->adjList[vertex].size(); j++)
+            int k = params->adjList[candidate_node][j].first;
+            if(offspring->adjList[k].size() > 0)
             {
-                int k = params->adjList[vertex][j].first;
-                if(offspring->adjList[k].size() > 0)
-                {
-                    int weight = params->adjList[vertex][j].second;
-                    clone.adjList[k].push_back(std::make_pair(vertex, weight));
-                    clone.adjList[vertex].push_back(std::make_pair(k,weight));
-                }
+                int weight = params->adjList[candidate_node][j].second;
+                clone.adjList[k].push_back(std::make_pair(candidate_node, weight));
+                clone.adjList[candidate_node].push_back(std::make_pair(k,weight));
             }
-
-            clone.setEdgesSet();
-
-            //Sort edges
-            std::vector<std::pair<std::pair<int,int>,int>> edges_vector;
-
-            for(auto &edge : clone.edgesSet)
-            {
-                std::pair<int,int> edge_info = params->edgeMap[edge];
-                int weight = edge_info.second;
-                int source = edge.first;
-                int destination = edge.second;
-                edges_vector.push_back(std::make_pair(std::make_pair(source, destination), weight));
-            }
-            std::sort(edges_vector.begin(),edges_vector.end(), LocalSearch::sortAscEdges);
-            std::vector<std::pair<std::pair<int,int>,int>>::iterator it;
-            clone.eraseEdges();
-            for (it = edges_vector.begin(); it!=edges_vector.end(); it++) 
-            {
-                int u = it->first.first; 
-                int v = it->first.second; 
-                int weight = it->second;
-                clone.insertEdgeIfFeasible(u,v,weight);
-            }
-            clone.removeNonTerminalLeaves();
-            clone.calculateCost();
-        } 
+        }
     }
-    else//otherwise, we remove it
+    else // Delete candidate
     {
         clone.eraseEdges();
-        for(int j = 0; j < offspring->adjList.size(); j++)
-            clone.adjList[j] = offspring->adjList[j];
+        Individual::copy(&clone,offspring);
 
-        //We eliminate vertex from the graph. 
-        //In other words, we remove all edges adjacent to vertex
-        for (int i = 0 ; i < clone.adjList[vertex].size(); i++)
-        {//For each v adjacent to vertex, we eliminate its symetric
-            int destination = clone.adjList[vertex][i].first;
+        //We eliminate candidate_node from the graph. 
+        //In other words, we remove all edges adjacent to candidate_node
+        for (int i = 0 ; i < clone.adjList[candidate_node].size(); i++)
+        {//For each v adjacent to candidate_node, we eliminate its symetric
+            int destination = clone.adjList[candidate_node][i].first;
             for (int j = 0 ; j < clone.adjList[destination].size(); j++)
             {
-                if(clone.adjList[destination][j].first = vertex)
+                if(clone.adjList[destination][j].first = candidate_node)
                 {
                     clone.adjList[destination].erase(clone.adjList[destination].begin() + j);
                     break;
                 }
             }
         }
-        clone.adjList[vertex].clear();                
-        //Insert edges (u,v), where u is adjacent to vertex and v is in the graph
-        for(int i = 0; i < params->adjList[vertex].size(); i++)
+        clone.adjList[candidate_node].clear();                
+        //Insert edges (u,v), where u is adjacent to candidate_node and v is in the graph
+        for(int i = 0; i < params->adjList[candidate_node].size(); i++)
         {
-            int u = params->adjList[vertex][i].first;
+            int u = params->adjList[candidate_node][i].first;
             for (int j = 0 ; j < params->adjList[u].size() ; j++)
             {
                 int v = params->adjList[u][j].first;
@@ -135,30 +109,30 @@ void Population::mutation()
                 }
             }
         }
-        clone.setEdgesSet();
-
-        std::vector<std::pair<std::pair<int,int>,int>> edges_vector;
-        for(auto &edge : clone.edgesSet)
-        {
-            std::pair<int,int> edge_info = params->edgeMap[edge];
-            int weight = edge_info.second;
-            int source = edge.first;
-            int destination = edge.second;
-            edges_vector.push_back(std::make_pair(std::make_pair(source, destination), weight));
-        }
-        std::sort(edges_vector.begin(),edges_vector.end(), LocalSearch::sortAscEdges);
-        clone.eraseEdges();
-        std::vector<std::pair<std::pair<int,int>,int>>::iterator it;
-        for (it = edges_vector.begin(); it!=edges_vector.end(); it++) 
-        {
-            int u = it->first.first; 
-            int v = it->first.second; 
-            int weight = it->second;
-            clone.insertEdgeIfFeasible(u,v,weight);
-        }
-        clone.removeNonTerminalLeaves();
-        clone.calculateCost();
     }
+    clone.setEdgesSet();
+
+    std::vector<std::pair<std::pair<int,int>,int>> edges_vector;
+    for(auto &edge : clone.edgesSet)
+    {
+        std::pair<int,int> edge_info = params->edgeMap[edge];
+        int weight = edge_info.second;
+        int source = edge.first;
+        int destination = edge.second;
+        edges_vector.push_back(std::make_pair(std::make_pair(source, destination), weight));
+    }
+    std::sort(edges_vector.begin(),edges_vector.end(), LocalSearch::sortAscEdges);
+    clone.eraseEdges();
+    std::vector<std::pair<std::pair<int,int>,int>>::iterator it;
+    for (it = edges_vector.begin(); it!=edges_vector.end(); it++) 
+    {
+        int u = it->first.first; 
+        int v = it->first.second; 
+        int weight = it->second;
+        clone.insertEdgeIfFeasible(u,v,weight);
+    }
+    clone.removeNonTerminalLeaves();
+    clone.calculateCost();
     if(clone.isFeasible())
         Individual::copy(subpopulation[chosenpos], &clone);
 }
@@ -248,6 +222,17 @@ void Population::crossover(Individual *offspring)
     }
     offspring->removeNonTerminalLeaves();
     offspring->calculateCost();
+}
+
+void Population::printAverageCost()
+{
+    float avgCost = 0.0;
+    for(int i = 0 ; i < subpopulation.size(); i++)
+    {
+        subpopulation[i]->calculateCost();
+        avgCost += subpopulation[i]->getCost();
+    }
+    printf("AVGCOST;%.2lf\n", avgCost/subpopulation.size());
 }
 
 Individual *Population::getBestIndividual()

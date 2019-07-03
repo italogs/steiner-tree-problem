@@ -19,5 +19,6 @@ public:
     void addIndividual(Individual *newIndividual);
     void crossover(Individual *offspring);
     void mutation();
+    void printAverageCost();
 };
 #endif

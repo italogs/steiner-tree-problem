@@ -5,7 +5,7 @@
 #include "LocalSearch.h"
 
 
-
+void runGreedyKruskal(Params *params);
 void PrintShortestPath(Params &params, std::vector<int> &dist, int &start, std::vector<int> &prev);
 std::vector<int> DijkstraSP(std::vector< std::vector<std::pair<int, int> > > &adjList, int &start, std::vector<int> &prev);
 int getWeightShortestPathFromUToV(std::vector< std::vector<std::pair<int, int> > > &adjList, int source, int destination);
@@ -24,13 +24,16 @@ int main(int argc, char *argv[])
 		Population pop(&params);
 		LocalSearch localSearch(&params);
 		pop.generateInitialPopulation();
-		int maxFailedAttempts = 2000, nbFailedAttempts = 0;
+		int maxFailedAttempts = 500, nbFailedAttempts = 0;
 		
+		runGreedyKruskal(&params);
+
 		Individual offspring(&params);
 		Individual bestSolution(&params);
 		Individual::copy(&bestSolution,pop.getBestIndividual());
 		printf("Best initial solution %d\n", bestSolution.getCost());
 		int iteration = 0;
+		printf("it;%d;BS;%d;",iteration,bestSolution.getCost());
 		while(nbFailedAttempts < maxFailedAttempts)
 		{
 			pop.crossover(&offspring);
@@ -39,7 +42,7 @@ int main(int argc, char *argv[])
 			if(offspring.getCost() < bestSolution.getCost())
 			{
 				Individual::copy(&bestSolution,&offspring);
-				printf("Best local optima improved: %d (iteration %d) \n", bestSolution.getCost(),iteration);
+				// printf("Best local optima improved: %d (iteration %d) \n", bestSolution.getCost(),iteration);
 				nbFailedAttempts = 0;
 			}
 			else
@@ -48,15 +51,54 @@ int main(int argc, char *argv[])
 			iteration++;
 			if(iteration % 1000 == 0)
 				printf("It: %d\n",iteration);
+			if(iteration % 100 == 0){
+				printf("it;%d;BS;%d;",iteration,bestSolution.getCost());
+				pop.printAverageCost();
+			}
 		}
 
 		params.endTime = clock();
+		if(pop.getBestIndividual()->getCost() != bestSolution.getCost())
+		{
+			printf("tem algum erro\n");
+		}
 		std::cout << ">BEST SOLUTION " << bestSolution.getCost() << "; TIME " << (params.endTime - params.startTime) / (double)CLOCKS_PER_SEC << "(s)" << std::endl;
 		
 		// Printing the solution and exporting statistics (also export results into a file)
 		std::cout << "----- END OF ALGORITHM" << std::endl;
 	}
 	return 0;
+}
+
+
+void runGreedyKruskal(Params *params)
+{
+	Individual kruskalSol(params);
+	kruskalSol.adjList = params->adjList;
+	kruskalSol.setEdgesSet();
+	std::vector<std::pair<std::pair<int,int>,int>> edges_vector;
+	for(auto &edge : kruskalSol.edgesSet)
+	{
+		std::pair<int,int> edge_info = params->edgeMap[edge];
+		int weight = edge_info.second;
+		int source = edge.first;
+		int destination = edge.second;
+		edges_vector.push_back(std::make_pair(std::make_pair(source, destination), weight));
+	}
+	std::sort(edges_vector.begin(),edges_vector.end(), LocalSearch::sortAscEdges);
+	kruskalSol.eraseEdges();
+	std::vector<std::pair<std::pair<int,int>,int>>::iterator it;
+	for (it = edges_vector.begin(); it!=edges_vector.end(); it++) 
+	{
+		int u = it->first.first; 
+		int v = it->first.second; 
+		int weight = it->second;
+		kruskalSol.insertEdgeIfFeasible(u,v,weight);
+	}
+
+	kruskalSol.removeNonTerminalLeaves();
+	kruskalSol.calculateCost();
+	printf("Kruskal-Pruning: %d\n",kruskalSol.getCost());
 }
 
 
