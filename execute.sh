@@ -10,10 +10,15 @@ make
 cd ..
 
 mytimestamp=`date "+%d-%m-%y-%H-%M-%S"`
-# Program/steiner Instances/C/c15.stp -seed 1
-# Program/steiner Instances/B/b01.stp -seed 1
-# Program/steiner Instances/B/b04.stp -seed 1
-# Program/steiner Instances/B/b17.stp -seed 1
+
+
+# # Para experimentos extendidos
+# echo "" > extended_experiments.txt
+# Program/steiner Instances/B/b01.stp -seed 1 >> extended_experiments.txt 
+# Program/steiner Instances/B/b13.stp -seed 1 >> extended_experiments.txt 
+# Program/steiner Instances/C/c01.stp -seed 1 >> extended_experiments.txt 
+# Program/steiner Instances/C/c06.stp -seed 1 >> extended_experiments.txt 
+
 
 #Set B
 INSTANCES=('b01.stp' 'b02.stp' 'b03.stp' 'b04.stp' 'b05.stp' 'b06.stp' 'b07.stp' 'b08.stp' 'b09.stp' 'b10.stp' 'b11.stp' 'b12.stp' 'b13.stp' 'b14.stp' 'b15.stp' 'b16.stp' 'b17.stp' 'b18.stp')
@@ -43,6 +48,7 @@ do
         Program/steiner Instances/$INSTANCE_SET/$instance -seed $seed > Benchmarks/$INSTANCE_SET/$mytimestamp/$instance-$seed.txt        
         cat Benchmarks/$INSTANCE_SET/$mytimestamp/$instance-$seed.txt | grep "nbRemovedEdges;" >> Benchmarks/$INSTANCE_SET/$mytimestamp/compiled-$instance.txt
         cat Benchmarks/$INSTANCE_SET/$mytimestamp/$instance-$seed.txt | grep "nbRemovedVertices;" >> Benchmarks/$INSTANCE_SET/$mytimestamp/compiled-$instance.txt
+        cat Benchmarks/$INSTANCE_SET/$mytimestamp/$instance-$seed.txt | grep "Kruskal-Pruning" >> Benchmarks/$INSTANCE_SET/$mytimestamp/compiled-$instance.txt
         cat Benchmarks/$INSTANCE_SET/$mytimestamp/$instance-$seed.txt | grep ">BEST" >> Benchmarks/$INSTANCE_SET/$mytimestamp/compiled-$instance.txt
     done
 done
